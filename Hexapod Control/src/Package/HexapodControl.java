@@ -2,9 +2,11 @@ package Package;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import java.awt.Font;
 import javax.swing.JLabel;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.event.ActionListener;
@@ -13,10 +15,17 @@ import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 public class HexapodControl {
 
 	private JFrame frame;
+	private JButton btnUp;
+	private JButton btnDown;
+	private JButton btnLeft;
+	private JButton btnRight;
+	public static boolean moveFertig = false;
 
 	/**
 	 * Launch the application.
@@ -39,12 +48,37 @@ public class HexapodControl {
 	 */
 	public HexapodControl() {
 		initialize();
+		
+	
 	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
+		int timerDelay = 1;
+	      final Timer timer = new Timer(timerDelay , new ActionListener() {
+
+	         @Override
+	         public void actionPerformed(ActionEvent e) {
+	        	 //System.out.println("timer");
+	        	 
+	        	 if(JavaSerial.isReady()){
+	        		 moveFertig = true;
+	        	 }else{
+	        		 moveFertig = false;
+	        	 }
+	        	 
+	        	 if(moveFertig){
+	        	 	JavaSerial.writeByte('F');
+	        	 	moveFertig = false;
+	        	 }
+	    
+	        }
+	      });
+
+		
 		frame = new JFrame();
 		frame.getContentPane().setBackground(UIManager.getColor("Desktop.background"));
 		frame.setBounds(100, 100, 500, 400);
@@ -56,12 +90,27 @@ public class HexapodControl {
 			  });
 		frame.getContentPane().setLayout(null);
 		
-		JButton btnUp = new JButton("up");
+		btnUp = new JButton("up");
+		ButtonModel btnUpModel = btnUp.getModel();
+		btnUp.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				
+				 if (btnUpModel.isPressed() && !timer.isRunning()) {
+		               timer.start();
+		               JavaSerial.writeByte('F');
+		         } else if (!btnUpModel.isPressed() && timer.isRunning()) {
+		               timer.stop();
+		         }
+				
+			}
+		});
 		btnUp.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				JavaSerial.writeByte('1');
-			
+				System.out.println("F gesendet");
+				//JavaSerial.writeByte('F');
+				System.out.println("Abgeschlossen");
+				
 			}
 		});
 		
@@ -69,19 +118,19 @@ public class HexapodControl {
 		btnUp.setBounds(105, 67, 117, 61);
 		frame.getContentPane().add(btnUp);
 		
-		JButton btnDown = new JButton("down");
+		btnDown = new JButton("down");
 		btnDown.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
 		btnDown.setBounds(105, 213, 117, 61);
 		frame.getContentPane().add(btnDown);
 		
 		
-		JButton btnLeft = new JButton("left");
+		btnLeft = new JButton("left");
 		btnLeft.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
 		btnLeft.setBounds(17, 140, 117, 61);
 		frame.getContentPane().add(btnLeft);
 		
 		
-		JButton btnRight = new JButton("right");
+		btnRight = new JButton("right");
 		btnRight.setFont(new Font("Lucida Grande", Font.PLAIN, 20));
 		btnRight.setBounds(190, 140, 117, 61);
 		frame.getContentPane().add(btnRight);
@@ -93,8 +142,17 @@ public class HexapodControl {
 		lblNewLabel.setBounds(36, 6, 262, 34);
 		frame.getContentPane().add(lblNewLabel);
 		
-		JavaSerial.initialize();
+		JButton btnConnect = new JButton("connect");
+		btnConnect.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				JavaSerial.initialize();
+			}
+		});
+		btnConnect.setBounds(352, 282, 117, 29);
+		frame.getContentPane().add(btnConnect);
+
 	}
 	
-
+	
 }

@@ -1,4 +1,6 @@
 package Package;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MoveAction;
+
 import jssc.SerialPort;
 import jssc.SerialPortException;
 
@@ -73,7 +75,7 @@ public class JavaSerial {
 			
 			// byte/char senden
 			serialPort.writeBytes(ausgangsByte.getBytes());
-			System.out.println("e (ein) gesendet");
+			System.out.println("byte gesendet");
 			//Thread.sleep(1000);
 			
 			String s = "";
@@ -89,14 +91,43 @@ public class JavaSerial {
 				System.out.println("Habe den String erhalten: "+s);
 				
 			}
+						
+			HexapodControl.moveFertig = true;
 			
-
 		} catch (SerialPortException ex) {
 			System.out.println(ex);
 		}
 		
 		
 	}
+	
+	public static boolean isReady(){
+		String s = "";
+		
+		
+		s="";
+		byte bytes[];
+		try {
+			bytes = serialPort.readBytes();
+		
+			
+		if(bytes == null) return false;
+		
+		for(byte b : bytes) s += (char) b;
+		
+		System.out.println("Habe den String erhalten: "+s);
+		
+		if(s.contains("ready")) return true;
+		
+		} catch (SerialPortException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return false;
+	}
+	
+	
 	
 	public static void endConnection(){
 		try {
