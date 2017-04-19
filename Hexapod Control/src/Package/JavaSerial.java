@@ -80,20 +80,19 @@ public class JavaSerial {
 			
 			String s = "";
 			
-			while(!s.contains("ready")){
+			/*while(!s.contains("ready")){
 				s="";
 				byte bytes[] = serialPort.readBytes();
 				
-				if(bytes == null) break;
+				if(bytes == null) return;
 				
 				for(byte b : bytes) s += (char) b;
 				
 				System.out.println("Habe den String erhalten: "+s);
 				
-			}
+			}*/
 						
 			HexapodControl.moveFertig = true;
-			
 		} catch (SerialPortException ex) {
 			System.out.println(ex);
 		}
@@ -101,7 +100,7 @@ public class JavaSerial {
 		
 	}
 	
-	public static boolean isReady(){
+	public static void isReady(){
 		String s = "";
 		
 		
@@ -111,27 +110,25 @@ public class JavaSerial {
 			bytes = serialPort.readBytes();
 		
 			
-		if(bytes == null) return false;
-		
-		for(byte b : bytes) s += (char) b;
-		
-		System.out.println("Habe den String erhalten: "+s);
-		
-		if(s.contains("ready")) return true;
-		
+			if(bytes == null) return;
+			
+			for(byte b : bytes) s += (char) b;
+			
+			System.out.println("Habe den String erhalten: "+s);
+			
+			HexapodControl.moveFertig=true;
 		} catch (SerialPortException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		return false;
+
 	}
 	
 	
 	
 	public static void endConnection(){
 		try {
-			serialPort.closePort();
+			if(!serialPort.isOpened()) serialPort.closePort();
 			System.out.println("Connection beendet");
 		} catch (SerialPortException e) {
 			// TODO Auto-generated catch block
